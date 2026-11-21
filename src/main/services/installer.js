@@ -90,13 +90,25 @@ class InstallerService {
 
     log(`[1/3] Iniciando download de: ${component.name}...`);
 
-    const filename = `${component.id}_${Date.now()}${path.extname(component.downloadUrl.split('?')[0]) || '.exe'}`;
+    const urlExt = path.extname(component.downloadUrl.split('?')[0]) || '.exe';
+    const filename = `${component.id}_${Date.now()}${urlExt}`;
     const targetFile = path.join(this.tempDir, filename);
 
     try {
       await this.downloadFile(component.downloadUrl, targetFile, onProgress);
-      log(`[2/3] Download concluído com sucesso (${path.basename(targetFile)}).`);
 
+      // Verificar se o arquivo baixado tem tamanho mínimo (evitar HTML de erro)
+      const stats = fs.statSync(targetFile);
+      if (stats.size < 1024) {
+        // Arquivo menor que 1KB = provavelmente uma página de erro HTML
+        fs.unlink(targetFile, () => {});
+        throw new Error(
+          `O servidor retornou uma resposta inválida (${stats.size} bytes). ` +
+          `O link de download pode estar expirado. Use o Portal Oficial para baixar manualmente.`
+        );
+      }
+
+      log(`[2/3] Download concluído com sucesso (${(stats.size / (1024 * 1024)).toFixed(1)} MB).`);
       log(`[3/3] Executando instalador em modo ${isSilent ? 'SILENCIOSO (Automático)' : 'ASSISTIDO (Manual)'}...`);
 
       let exitCode = 0;
@@ -109,11 +121,12 @@ class InstallerService {
         exitCode = await this._installMsi(targetFile, isSilent, log);
       } else {
         // Executável padrão (.exe)
-        exitCode = await this._installExe(targetFile, component.installerArgs, isSilent, log);
+        exitCode = await this._installExe(targetFile, component.installerArgs || [], isSilent, log);
       }
 
       log(`Processo finalizado com código ${exitCode}.`);
-      return { success: exitCode === 0 || exitCode === 3010, exitCode }; // 3010 = reinício pendente (sucesso)
+      // 3010 = reboot required (sucesso), 0 = OK, 1641 = reboot initiated (sucesso)
+      return { success: exitCode === 0 || exitCode === 3010 || exitCode === 1641, exitCode };
     } catch (err) {
       log(`Erro durante instalação: ${err.message}`);
       throw err;

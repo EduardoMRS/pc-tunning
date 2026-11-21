@@ -27,24 +27,22 @@ class DriversService {
           name: 'AMD Software: Adrenalin Edition (Auto-Detect)',
           category: 'Vídeo (GPU)',
           vendor: 'Advanced Micro Devices, Inc.',
-          description: 'Instalador oficial da AMD que analisa sua placa Radeon (série RX) e instala os drivers mais estáveis, FSR 3 e utilitários.',
-          autoInstallable: true,
-          downloadUrl: 'https://drivers.amd.com/drivers/installer/amd-software-adrenalin-edition-auto-detect-install.exe',
-          installerArgs: ['-install'],
+          description: 'Instalador oficial da AMD que analisa sua placa Radeon (série RX) e instala os drivers mais estáveis, FSR 3 e utilitários. Clique em "Portal Oficial" para baixar o Auto-Detect mais recente.',
+          autoInstallable: false,
+          downloadUrl: null,
           officialSiteUrl: 'https://www.amd.com/pt/support/download/drivers.html',
-          type: 'executable'
+          type: 'web'
         },
         intel: {
           id: 'driver-gpu-intel',
           name: 'Intel Arc & Iris Xe Graphics Driver',
           category: 'Vídeo (GPU)',
           vendor: 'Intel Corporation',
-          description: 'Drivers oficiais de gráficos Intel com suporte a XeSS, DirectX 12 Ultimate e aceleração de vídeo.',
-          autoInstallable: true,
-          downloadUrl: 'https://downloadmirror.intel.com/838977/Intel-Driver-and-Support-Assistant-Installer.exe',
-          installerArgs: ['/quiet', '/norestart'],
-          officialSiteUrl: 'https://www.intel.com.br/content/www/br/pt/support/detect.html',
-          type: 'executable'
+          description: 'Drivers oficiais de gráficos Intel com suporte a XeSS, DirectX 12 Ultimate e aceleração de vídeo. Use o Portal Oficial para baixar o Intel DSA (Driver Support Assistant).',
+          autoInstallable: false,
+          downloadUrl: null,
+          officialSiteUrl: 'https://www.intel.com/content/www/us/en/download/18002/intel-driver-support-assistant.html',
+          type: 'web'
         }
       },
 
@@ -55,24 +53,22 @@ class DriversService {
           name: 'Drivers de Chipset AMD Ryzen (AM4 / AM5)',
           category: 'Processador & Chipset',
           vendor: 'AMD',
-          description: 'Otimiza o plano de energia Ryzen, controle de tensão, barramento PCIe 4.0/5.0 e portas USB integradas à placa-mãe.',
-          autoInstallable: true,
-          downloadUrl: 'https://drivers.amd.com/drivers/installer/amd-software-adrenalin-edition-auto-detect-install.exe',
-          installerArgs: ['-install'],
+          description: 'Otimiza o plano de energia Ryzen, controle de tensão, barramento PCIe 4.0/5.0 e portas USB integradas à placa-mãe. Baixe o Auto-Detect no Portal Oficial.',
+          autoInstallable: false,
+          downloadUrl: null,
           officialSiteUrl: 'https://www.amd.com/pt/support/download/drivers.html',
-          type: 'executable'
+          type: 'web'
         },
         intel: {
           id: 'driver-chipset-intel',
           name: 'Intel Chipset Device Software (INF Update Utility)',
           category: 'Processador & Chipset',
           vendor: 'Intel Corporation',
-          description: 'Configura os componentes essenciais da placa-mãe Intel (LPC, PCIe, SMBus, I2C, Serial IO e gerenciamento de energia).',
-          autoInstallable: true,
-          downloadUrl: 'https://downloadmirror.intel.com/838977/Intel-Driver-and-Support-Assistant-Installer.exe',
-          installerArgs: ['/quiet', '/norestart'],
-          officialSiteUrl: 'https://www.intel.com.br/content/www/br/pt/download-center/home.html',
-          type: 'executable'
+          description: 'Configura os componentes essenciais da placa-mãe Intel (LPC, PCIe, SMBus, I2C, Serial IO e gerenciamento de energia). Baixe via Intel DSA no Portal Oficial.',
+          autoInstallable: false,
+          downloadUrl: null,
+          officialSiteUrl: 'https://www.intel.com/content/www/us/en/download/18002/intel-driver-support-assistant.html',
+          type: 'web'
         }
       },
 
@@ -94,12 +90,11 @@ class DriversService {
           name: 'Intel Ethernet Connection & Killer Wi-Fi Suite',
           category: 'Rede & Conectividade',
           vendor: 'Intel / Killer Networking',
-          description: 'Pacote de drivers oficiais para adaptadores de rede Intel (I219-V, I225-V, Wi-Fi 6 AX200/AX210/BE200).',
-          autoInstallable: true,
-          downloadUrl: 'https://downloadmirror.intel.com/838977/Intel-Driver-and-Support-Assistant-Installer.exe',
-          installerArgs: ['/quiet', '/norestart'],
-          officialSiteUrl: 'https://www.intel.com.br/content/www/br/pt/download-center/home.html',
-          type: 'executable'
+          description: 'Pacote de drivers oficiais para adaptadores de rede Intel (I219-V, I225-V, Wi-Fi 6 AX200/AX210/BE200). Baixe via Intel DSA no Portal Oficial.',
+          autoInstallable: false,
+          downloadUrl: null,
+          officialSiteUrl: 'https://www.intel.com/content/www/us/en/download/18002/intel-driver-support-assistant.html',
+          type: 'web'
         }
       },
 
