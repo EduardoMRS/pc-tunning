@@ -1,6 +1,6 @@
 {
   "name": "otimizador-pro",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "Otimizador de Sistema, Central de Drivers, Runtimes de Jogos e Anti-Miner Multiplataforma",
   "main": "src/main/index.js",
   "scripts": {

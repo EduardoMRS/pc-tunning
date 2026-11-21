@@ -33,7 +33,7 @@ Deseja transformar o projeto em um instalador distribuível para instalar no seu
 1. Dê um duplo clique no arquivo **`gerar_instalador.bat`** (ou execute `npm run dist:win`).
 2. O compilador criará o arquivo na pasta:
    ```text
-   E:\Projetos\Otimizador\dist\Otimizador & Gaming Hub Pro Setup 2.0.0.exe
+   E:\Projetos\Otimizador\dist\Otimizador & Gaming Hub Pro Setup 1.0.0.exe
    ```
 3. O instalador inclui:
    - Assistente de instalação personalizável (NSIS).
