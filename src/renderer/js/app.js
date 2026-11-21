@@ -848,7 +848,16 @@ class AppController {
         } else {
           this.showToast('Desativando proteção em tempo real...', 'info');
           const res = await window.api.disableDefender();
-          this.showToast(res.message, res.success ? 'success' : 'error');
+
+          if (res.tamperBlocked || res.message === 'TAMPER_BLOCKED') {
+            // Reverter toggle — não foi possível desativar
+            toggleDef.checked = true;
+            this.showDefenderTamperAlert();
+          } else if (res.message === 'DEFENDER_DISABLED') {
+            this.showToast('⚠️ Windows Defender desativado. Proteção em tempo real removida. Reative após jogar!', 'info');
+          } else {
+            this.showToast(res.message, res.success ? 'success' : 'error');
+          }
         }
         await this.loadGameDefenderStatus();
         toggleDef.disabled = false;
@@ -882,21 +891,85 @@ class AppController {
       const label = document.getElementById('gm-status-text-defender');
       const toggle = document.getElementById('toggle-defender');
       const warningBox = document.getElementById('gm-defender-warning');
+      const tamperBadge = document.getElementById('gm-defender-tamper-badge');
 
       if (dot) {
         dot.className = defStatus.enabled ? 'status-dot dot-installed' : 'status-dot dot-missing';
       }
       if (label) {
-        label.textContent = defStatus.statusText;
+        const tamperNote = defStatus.tamperProtectionActive ? ' (Tamper Protection ativa)' : '';
+        label.textContent = defStatus.statusText + tamperNote;
         label.className = `gm-status-label ${defStatus.enabled ? 'text-emerald' : 'text-rose'}`;
       }
-      if (toggle) toggle.checked = defStatus.enabled;
+      if (toggle) {
+        toggle.checked = defStatus.enabled;
+        // Com Tamper Protection ativa, bloquear toggle — só a Central de Segurança do Windows pode alterar
+        if (defStatus.tamperProtectionActive) {
+          toggle.disabled = true;
+          toggle.title = 'Tamper Protection ativa: use a Central de Segurança do Windows para alterar';
+        } else {
+          toggle.disabled = false;
+          toggle.title = '';
+        }
+      }
+      if (tamperBadge) {
+        tamperBadge.style.display = defStatus.tamperProtectionActive ? 'inline-flex' : 'none';
+      }
       if (warningBox) {
         warningBox.style.display = defStatus.enabled ? 'none' : 'flex';
       }
     } catch (e) {
       console.error('Erro ao carregar status do Defender:', e);
     }
+  }
+
+  showDefenderTamperAlert() {
+    // Modal de instrução para Tamper Protection
+    const existing = document.getElementById('tamper-alert-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'tamper-alert-modal';
+    modal.style.cssText = `
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.75);display:flex;align-items:center;
+      justify-content:center;z-index:9999;
+    `;
+    modal.innerHTML = `
+      <div style="background:var(--bg-secondary,#1a1a2e);border:1px solid var(--accent-orange,#f97316);border-radius:12px;padding:28px;max-width:500px;width:90%;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <strong style="font-size:16px;color:#f97316;">Tamper Protection Ativa</strong>
+        </div>
+        <p style="color:#ccc;margin-bottom:16px;line-height:1.6;">
+          O <strong>Windows 11</strong> bloqueia qualquer aplicativo externo de desativar o Defender automaticamente.<br><br>
+          Para desativar a proteção em tempo real manualmente, siga os passos:
+        </p>
+        <ol style="color:#aaa;padding-left:20px;line-height:2;margin-bottom:20px;">
+          <li>Abra a <strong style="color:#fff;">Central de Segurança do Windows</strong> (ícone de escudo na barra de tarefas)</li>
+          <li>Clique em <strong style="color:#fff;">"Proteção contra vírus e ameaças"</strong></li>
+          <li>Clique em <strong style="color:#fff;">"Gerenciar configurações"</strong></li>
+          <li>Desative <strong style="color:#fff;">"Proteção em tempo real"</strong></li>
+          <li>Reative ao terminar de jogar!</li>
+        </ol>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="tamper-open-defender" style="background:#0ea5e9;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;">
+            Abrir Central de Segurança
+          </button>
+          <button id="tamper-close-btn" style="background:#374151;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;">
+            Fechar
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById('tamper-close-btn').addEventListener('click', () => modal.remove());
+    document.getElementById('tamper-open-defender').addEventListener('click', () => {
+      window.api.openExternal('windowsdefender://');
+      modal.remove();
+    });
   }
 
   renderGameSteps(steps) {

@@ -123,15 +123,31 @@ class InstallerService {
   _installExe(filePath, args = [], isSilent = true, log) {
     return new Promise((resolve) => {
       const finalArgs = isSilent ? args : [];
-      log(`Executando: "${filePath}" ${finalArgs.join(' ')}`);
+      log(`Executando com elevação UAC: "${path.basename(filePath)}" ${finalArgs.join(' ')}`);
 
-      const proc = spawn(filePath, finalArgs, {
+      // Sempre usar Start-Process com -Verb RunAs para garantir elevação UAC
+      // Isso evita que instaladores falhem silenciosamente sem privilégios de administrador
+      const argListStr = finalArgs.length > 0
+        ? finalArgs.map(a => `'${a.replace(/'/g, "''")}'`).join(', ')
+        : '';
+
+      const psArgs = argListStr
+        ? `Start-Process -FilePath '${filePath.replace(/'/g, "''")}' -ArgumentList ${argListStr} -Verb RunAs -Wait`
+        : `Start-Process -FilePath '${filePath.replace(/'/g, "''")}' -Verb RunAs -Wait`;
+
+      const proc = spawn('powershell', [
+        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', psArgs
+      ], {
         windowsHide: isSilent,
-        detached: !isSilent
+        detached: false
       });
 
+      proc.stdout?.on('data', (d) => log(d.toString().trim()));
+      proc.stderr?.on('data', (d) => { if (d.toString().trim()) log(`[warn] ${d.toString().trim()}`); });
+
       proc.on('close', (code) => {
-        resolve(code || 0);
+        // 3010 = reboot required (success), 0 = OK
+        resolve(code === null ? 0 : code);
       });
 
       proc.on('error', (err) => {
@@ -147,8 +163,9 @@ class InstallerService {
       if (isSilent) {
         args.push('/quiet', '/norestart');
       }
-      log(`Executando: msiexec ${args.join(' ')}`);
+      log(`Executando msiexec com elevação UAC: ${args.join(' ')}`);
 
+      // msiexec já solicita UAC nativamente via Start-Process
       const proc = spawn('msiexec', args, {
         windowsHide: isSilent
       });

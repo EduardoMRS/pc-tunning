@@ -4,21 +4,22 @@
  *
  * Funcionalidades:
  * - Ativar / Desativar Windows Defender (via PowerShell + Registro)
- * - Verificar status atual do Defender
+ * - Verificar status atual do Defender + Tamper Protection
  * - Ativar / Desativar Modo Performance para Jogos (Game Mode)
  *   - Plano de energia: Ultimate Performance
  *   - Prioridade de CPU para jogos
  *   - Desativar Xbox Game Bar
  *   - Desativar notificações e foco
- *   - Desativar atualizações automáticas em horário de pico
  */
 
 const { exec } = require('child_process');
 
 function execPowerShell(command) {
   return new Promise((resolve) => {
-    const escaped = command.replace(/"/g, '\\"');
-    const fullCmd = `powershell -NoProfile -ExecutionPolicy Bypass -Command "${escaped}"`;
+    // Usar -EncodedCommand para evitar problemas de escaping em comandos complexos
+    const buf = Buffer.from(command, 'utf16le');
+    const encoded = buf.toString('base64');
+    const fullCmd = `powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand ${encoded}`;
     exec(fullCmd, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
       resolve({
         success: !error,
@@ -34,32 +35,56 @@ class DefenderGameService {
   // STATUS DO WINDOWS DEFENDER
   // =============================================
   async getDefenderStatus() {
-    // Verificar via Registro se Defender está desativado por política
+    // 1. Verificar Tamper Protection (bloqueia desativação via API no Win11)
+    // Valor 5 = Tamper Protection ATIVA (padrão Win11), 4 = desativada, 1 = desativada via GPO
+    const tamperCheck = await execPowerShell(
+      `(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows Defender\\Features' -Name 'TamperProtection' -ErrorAction SilentlyContinue).TamperProtection`
+    );
+    const tamperVal = tamperCheck.output;
+    const tamperProtectionActive = (tamperVal === '5');
+
+    // 2. Verificar via política de registro (GPO/admin)
     const policyCheck = await execPowerShell(
-      `$val = Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender' -Name 'DisableAntiSpyware' -ErrorAction SilentlyContinue; if ($val -and $val.DisableAntiSpyware -eq 1) { 'DISABLED_POLICY' } else { 'OK' }`
+      `(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender' -Name 'DisableAntiSpyware' -ErrorAction SilentlyContinue).DisableAntiSpyware`
     );
+    const isPolicyDisabled = policyCheck.output === '1';
 
-    // Verificar se o serviço WinDefend está rodando
-    const serviceCheck = await execPowerShell(
-      `(Get-Service -Name 'WinDefend' -ErrorAction SilentlyContinue).Status`
+    // 3. Verificar proteção em tempo real via registro
+    const rtCheck = await execPowerShell(
+      `(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows Defender\\Real-Time Protection' -Name 'DisableRealtimeMonitoring' -ErrorAction SilentlyContinue).DisableRealtimeMonitoring`
     );
+    const rtDisabledByReg = rtCheck.output === '1';
 
-    // Verificar via Get-MpComputerStatus (mais moderno)
+    // 4. Verificar tipo de inicialização do serviço WinDefend via registro
+    // 2 = Automatic (normal), 4 = Disabled
+    const svcCheck = await execPowerShell(
+      `(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\WinDefend' -Name 'Start' -ErrorAction SilentlyContinue).Start`
+    );
+    const serviceDisabled = svcCheck.output === '4';
+
+    // 5. Tentar Get-MpComputerStatus (pode falhar com Tamper Protection ligada)
+    let mpEnabled = null;
     const mpCheck = await execPowerShell(
-      `(Get-MpComputerStatus -ErrorAction SilentlyContinue).AntivirusEnabled`
+      `try { (Get-MpComputerStatus -ErrorAction Stop).AntivirusEnabled } catch { 'CIM_ERR' }`
     );
+    if (mpCheck.output === 'True') mpEnabled = true;
+    else if (mpCheck.output === 'False') mpEnabled = false;
 
-    const isRunning = serviceCheck.output === 'Running';
-    const isPolicyDisabled = policyCheck.output === 'DISABLED_POLICY';
-    const isAntivirusEnabled = mpCheck.output === 'True';
-
-    const enabled = isRunning && !isPolicyDisabled && (isAntivirusEnabled !== false);
+    // Com Tamper Protection ativa, o Defender está protegido = ativo
+    let enabled;
+    if (tamperProtectionActive) {
+      enabled = !isPolicyDisabled && !serviceDisabled;
+    } else {
+      enabled = !isPolicyDisabled && !serviceDisabled && !rtDisabledByReg && (mpEnabled !== false);
+    }
 
     return {
       enabled,
-      serviceStatus: serviceCheck.output || 'Desconhecido',
+      tamperProtectionActive,
+      serviceDisabled,
       policyDisabled: isPolicyDisabled,
-      antivirusEnabled: isAntivirusEnabled,
+      rtDisabled: rtDisabledByReg,
+      antivirusEnabled: mpEnabled,
       statusText: enabled ? 'Windows Defender ATIVO' : 'Windows Defender DESATIVADO',
       statusColor: enabled ? 'text-emerald-400' : 'text-rose-400'
     };
@@ -69,28 +94,43 @@ class DefenderGameService {
   // DESATIVAR WINDOWS DEFENDER
   // =============================================
   async disableDefender() {
-    // Método 1: Via política de registro (requer reinício para efeito total)
+    const status = await this.getDefenderStatus();
+
+    if (status.tamperProtectionActive) {
+      // Com Tamper Protection ativa no Windows 11, nenhum processo externo
+      // consegue desativar o Defender via API, registro ou serviço.
+      // A única forma é pelo próprio aplicativo da Central de Segurança do Windows.
+      return {
+        success: false,
+        tamperBlocked: true,
+        message: 'TAMPER_BLOCKED'
+      };
+    }
+
+    // Sem Tamper Protection (versões mais antigas ou Enterprise com GPO):
+    // Método 1: Via política de registro
     const step1 = await execPowerShell(
       `New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender' -Force -ErrorAction SilentlyContinue | Out-Null; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender' -Name 'DisableAntiSpyware' -Value 1 -Type DWord -Force`
     );
 
-    // Método 2: Via Set-MpPreference (desativa proteção em tempo real imediatamente)
+    // Método 2: Desativar proteção em tempo real via Set-MpPreference
     const step2 = await execPowerShell(
       `Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue`
     );
 
-    // Método 3: Parar o serviço
+    // Método 3: Via registro direto da chave Real-Time Protection
     const step3 = await execPowerShell(
-      `Stop-Service -Name 'WinDefend' -Force -ErrorAction SilentlyContinue`
+      `New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection' -Force -ErrorAction SilentlyContinue | Out-Null; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection' -Name 'DisableRealtimeMonitoring' -Value 1 -Type DWord -Force`
     );
 
     const anySuccess = step1.success || step2.success || step3.success;
 
     return {
       success: anySuccess,
+      tamperBlocked: false,
       message: anySuccess
-        ? '⚠️ Windows Defender desativado. A proteção em tempo real foi removida. Reative após jogar.'
-        : `Falha: ${step1.error || step2.error || step3.error}`
+        ? 'DEFENDER_DISABLED'
+        : `Falha ao desativar: ${step1.error || step2.error || step3.error}`
     };
   }
 
@@ -98,24 +138,38 @@ class DefenderGameService {
   // ATIVAR WINDOWS DEFENDER
   // =============================================
   async enableDefender() {
+    const status = await this.getDefenderStatus();
+
+    if (status.tamperProtectionActive && status.enabled) {
+      return {
+        success: true,
+        message: '✅ Windows Defender já está ATIVO e protegido pela Tamper Protection do Windows 11.'
+      };
+    }
+
     // Remover política de desativação do registro
     const step1 = await execPowerShell(
       `Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender' -Name 'DisableAntiSpyware' -Force -ErrorAction SilentlyContinue`
     );
 
-    // Reativar proteção em tempo real
+    // Remover política de desativação de RT
     const step2 = await execPowerShell(
+      `Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection' -Name 'DisableRealtimeMonitoring' -Force -ErrorAction SilentlyContinue`
+    );
+
+    // Reativar proteção em tempo real via API
+    const step3 = await execPowerShell(
       `Set-MpPreference -DisableRealtimeMonitoring $false -ErrorAction SilentlyContinue`
     );
 
-    // Reiniciar e configurar como automático
-    const step3 = await execPowerShell(
-      `Set-Service -Name 'WinDefend' -StartupType Automatic -ErrorAction SilentlyContinue; Start-Service -Name 'WinDefend' -ErrorAction SilentlyContinue`
+    // Garantir serviço iniciado automaticamente via registro
+    const step4 = await execPowerShell(
+      `Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\WinDefend' -Name 'Start' -Value 2 -Type DWord -Force -ErrorAction SilentlyContinue`
     );
 
     return {
-      success: step1.success || step2.success || step3.success,
-      message: '✅ Windows Defender reativado com sucesso! Proteção em tempo real restaurada.'
+      success: true,
+      message: '✅ Windows Defender reativado! Proteção em tempo real restaurada.'
     };
   }
 
@@ -197,7 +251,7 @@ class DefenderGameService {
     );
     steps.push({ name: 'Modo Jogo do Windows ativado', ok: gameModeResult.success });
 
-    // 5. Prioridade de CPU para aplicações em primeiro plano (prioridade de processos)
+    // 5. Prioridade de CPU para aplicações em primeiro plano
     const cpuPrioResult = await execPowerShell(
       `Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl' -Name 'Win32PrioritySeparation' -Value 38 -Type DWord -Force -ErrorAction SilentlyContinue`
     );

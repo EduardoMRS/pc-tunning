@@ -142,6 +142,18 @@ class AppsService {
         installerArgs: ['/S'],
         type: 'executable',
         registryPattern: /^Steam$/i
+      },
+      {
+        id: 'app-epic',
+        name: 'Epic Games Launcher',
+        category: 'Gamer & Chat',
+        iconName: 'zap',
+        description: 'Plataforma da Epic Games com jogos exclusivos, Fortnite, e títulos gratuitos toda semana.',
+        downloadUrl: 'https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi',
+        installerArgs: ['/quiet', '/norestart'],
+        type: 'msi',
+        officialSiteUrl: 'https://store.epicgames.com/pt-BR/download',
+        registryPattern: /Epic Games Launcher/i
       }
     ];
   }
