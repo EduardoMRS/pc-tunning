@@ -1,8 +1,8 @@
 @echo off
 :: ============================================================================
-:: Otimizador & Anti-Miner Pro - Inicializador com Elevacao de Administrador
+:: Otimizador & Gaming Hub Pro - Inicializador com Elevacao Automatica UAC
 :: ============================================================================
-title Otimizador ^& Anti-Miner Pro
+title Otimizador ^& Gaming Hub Pro
 
 :: Verificar privilegios de Administrador
 net session >nul 2>&1
@@ -12,22 +12,44 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-:: Mudar diretorio para o local do script
+:: Mudar diretorio para a raiz do projeto
 cd /d "%~dp0"
 
-:: Executar a aplicacao Desktop com Python
-where python >nul 2>&1
-if %errorLevel% equ 0 (
-    start "" pythonw main.py
+echo ============================================================
+echo   Otimizador ^& Gaming Hub Pro - Verificando ambiente...
+echo ============================================================
+
+:: Verificar se Node.js esta instalado
+where npm >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERRO] Node.js e npm nao foram encontrados no sistema!
+    echo Por favor, instale o Node.js em: https://nodejs.org/
+    pause
     exit /b
 )
 
-where py >nul 2>&1
-if %errorLevel% equ 0 (
-    start "" pyw main.py
-    exit /b
+:: Instalar dependencias apenas se node_modules nao existir
+if not exist "node_modules" (
+    echo [INFO] Primeira execucao: instalando dependencias do Electron...
+    echo [INFO] Aguarde, isso pode levar alguns minutos...
+    npm install
+    if %errorLevel% neq 0 (
+        echo [ERRO] Falha ao instalar dependencias.
+        pause
+        exit /b
+    )
 )
 
-echo [ERRO] Python nao foi encontrado no sistema!
-echo Por favor, instale o Python ou adicione-o ao PATH do Windows.
-pause
+echo [OK] Dependencias verificadas!
+echo [OK] Iniciando Otimizador ^& Gaming Hub Pro...
+echo.
+echo ============================================================
+echo   A janela da aplicacao deve aparecer em instantes.
+echo   Voce pode fechar este terminal apos o app abrir.
+echo ============================================================
+
+:: Iniciar o Electron como processo separado (nao bloqueia o bat)
+start "" "node_modules\electron\dist\electron.exe" .
+
+:: Aguardar 4 segundos e fechar o bat
+timeout /t 4 /nobreak >nul

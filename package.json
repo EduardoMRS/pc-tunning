@@ -1,0 +1,65 @@
+{
+  "name": "otimizador-pro",
+  "version": "2.0.0",
+  "description": "Otimizador de Sistema, Central de Drivers, Runtimes de Jogos e Anti-Miner Multiplataforma",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win nsis",
+    "dist:linux": "electron-builder --linux AppImage deb",
+    "dist:mac": "electron-builder --mac dmg"
+  },
+  "keywords": [
+    "optimizer",
+    "game-runtimes",
+    "drivers",
+    "directx",
+    "visual-c",
+    "anti-miner",
+    "trim-ssd",
+    "electron"
+  ],
+  "author": "Eduardo",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.otimizador.pro",
+    "productName": "Otimizador & Gaming Hub Pro",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Otimizador & Gaming Hub Pro",
+      "installerLanguages": ["pt_BR", "en_US"]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    }
+  }
+}

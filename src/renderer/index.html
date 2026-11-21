@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Otimizador & Gaming Hub Pro</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Bar personalizada para a janela -->
+    <header class="titlebar">
+      <div class="titlebar-drag">
+        <div class="brand">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span class="brand-title">Otimizador &amp; Gaming Hub <span class="badge-pro">PRO</span></span>
+        </div>
+        <div class="system-status-indicator">
+          <span class="pulse-dot"></span>
+          <span id="header-admin-badge" class="badge-admin">Verificando...</span>
+        </div>
+      </div>
+      <div class="window-controls">
+        <button id="btn-minimize" class="btn-win" title="Minimizar">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button id="btn-maximize" class="btn-win" title="Maximizar">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+        </button>
+        <button id="btn-close" class="btn-win btn-close" title="Fechar">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Estrutura Principal: Sidebar + Conteúdo -->
+    <div class="app-body">
+      <!-- Barra Lateral de Navegação -->
+      <nav class="sidebar">
+        <div class="nav-section-title">PRINCIPAL</div>
+        <button class="nav-item active" data-view="view-dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="view-runtimes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>Runtimes de Jogos</span>
+          <span id="badge-runtimes-missing" class="nav-pill nav-pill-warn" style="display:none">0</span>
+        </button>
+        <button class="nav-item" data-view="view-drivers">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Central de Drivers</span>
+        </button>
+        <button class="nav-item" data-view="view-apps">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          <span>Instalar / Remover Apps</span>
+        </button>
+
+        <div class="nav-section-title">SISTEMA</div>
+        <button class="nav-item" data-view="view-optimizer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          <span>Otimizador Rápido</span>
+        </button>
+        <button class="nav-item" data-view="view-scanner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Anti-Miner &amp; Defesa</span>
+        </button>
+
+        <button class="nav-item" data-view="view-gamemode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4"/><path d="M8 10v4"/><circle cx="17" cy="11" r="1"/><circle cx="15" cy="13" r="1"/></svg>
+          <span>Modo Game &amp; Defender</span>
+        </button>
+
+        <div class="sidebar-footer">
+          <div class="os-info-box">
+            <span class="os-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><path d="M3 5.5 10 4.5v6.5H3zM11 4.3 21 3v8h-10zM3 13h7v6.5L3 18.5zM11 13h10v8l-10-1.3z"/></svg>
+            </span>
+            <div class="os-text">
+              <span class="os-title">Windows 10/11</span>
+              <span class="os-sub">Pronto para Linux / Mac</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Conteúdo Principal -->
+      <main class="content-area">
+
+        <!-- ================= VIEW: DASHBOARD ================= -->
+        <section id="view-dashboard" class="view-panel active">
+          <!-- Hero Banner -->
+          <div class="hero-card">
+            <div class="hero-content">
+              <h1 class="hero-title">Painel de Desempenho &amp; Jogos</h1>
+              <p class="hero-desc">Monitore seu hardware, mantenha os drivers e bibliotecas de jogos sempre em dia e proteja sua máquina contra mineradores ocultos.</p>
+              <div class="hero-actions">
+                <button id="btn-quick-optimize" class="btn btn-primary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                  Otimização Rápida Completa
+                </button>
+                <button id="btn-refresh-hardware" class="btn btn-secondary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                  Atualizar Diagnóstico
+                </button>
+              </div>
+            </div>
+            <div class="hero-graphic">
+              <div class="shield-ring">
+                <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#38BDF8" stroke-width="1.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cards de Métricas de Hardware em Tempo Real -->
+          <div class="metrics-grid">
+            <!-- Card CPU -->
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-tag tag-cpu">PROCESSADOR</span>
+                <span id="cpu-cores-badge" class="metric-badge">...</span>
+              </div>
+              <div id="dash-cpu-name" class="metric-value">Carregando CPU...</div>
+              <div class="metric-sub" id="dash-cpu-vendor">Aguarde...</div>
+            </div>
+
+            <!-- Card GPU -->
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-tag tag-gpu">PLACA DE VÍDEO</span>
+                <span id="gpu-brand-badge" class="metric-badge">...</span>
+              </div>
+              <div id="dash-gpu-name" class="metric-value">Carregando GPU...</div>
+              <div class="metric-sub" id="dash-gpu-driver">Driver: Verificando...</div>
+            </div>
+
+            <!-- Card RAM -->
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-tag tag-ram">MEMÓRIA RAM</span>
+                <span id="dash-ram-percent" class="metric-badge">0%</span>
+              </div>
+              <div id="dash-ram-usage" class="metric-value">0 / 0 GB</div>
+              <div class="progress-bar-container">
+                <div id="dash-ram-bar" class="progress-bar-fill" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- Card SSD / Disco -->
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-tag tag-disk">DISCO PRINCIPAL</span>
+                <span id="dash-disk-letter" class="metric-badge">C:</span>
+              </div>
+              <div id="dash-disk-usage" class="metric-value">0 GB Livres</div>
+              <div class="progress-bar-container">
+                <div id="dash-disk-bar" class="progress-bar-fill fill-disk" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Status Hub -->
+          <div class="quick-status-section">
+            <h2 class="section-title">Status dos Módulos Vitais</h2>
+            <div class="quick-status-grid">
+              <div class="status-box" id="status-box-runtimes">
+                <div class="status-box-icon icon-game">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-purple);"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="6"/></svg>
+                </div>
+                <div class="status-box-info">
+                  <div class="status-box-title">Bibliotecas de Jogos (Commons)</div>
+                  <div class="status-box-desc" id="dash-runtimes-summary">Verificando DirectX e Visual C++...</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="app.switchView('view-runtimes')">Acessar</button>
+              </div>
+
+              <div class="status-box" id="status-box-drivers">
+                <div class="status-box-icon icon-driver">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                </div>
+                <div class="status-box-info">
+                  <div class="status-box-title">Central de Drivers</div>
+                  <div class="status-box-desc" id="dash-drivers-summary">Verificando adaptadores...</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="app.switchView('view-drivers')">Acessar</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: RUNTIMES DE JOGOS ================= -->
+        <section id="view-runtimes" class="view-panel">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 6px; color: var(--accent-purple);"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="6"/></svg>
+                Bibliotecas &amp; Runtimes Essenciais para Jogos
+              </h1>
+              <p class="view-desc">Elimine os erros mais comuns de jogos (<span class="code-pill">0xc000007b</span>, <span class="code-pill">d3dx9_43.dll</span>, <span class="code-pill">vcruntime140.dll</span>). Instale as versões ausentes com 1 clique.</p>
+            </div>
+            <div class="view-header-actions">
+              <button id="btn-install-missing-runtimes" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Instalar Todos os Ausentes
+              </button>
+              <button id="btn-refresh-runtimes" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Reverificar
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtros -->
+          <div class="filter-bar">
+            <button class="filter-pill active" data-filter="all">Todos (<span id="count-runtimes-all">0</span>)</button>
+            <button class="filter-pill" data-filter="missing">Ausentes (<span id="count-runtimes-missing">0</span>)</button>
+            <button class="filter-pill" data-filter="installed">Instalados (<span id="count-runtimes-installed">0</span>)</button>
+          </div>
+
+          <!-- Lista de Runtimes em Grid de Cards Modernos -->
+          <div id="runtimes-list-container" class="cards-list">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <span>Auditando dependências instaladas no Windows...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: CENTRAL DE DRIVERS ================= -->
+        <section id="view-drivers" class="view-panel">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 6px; color: var(--accent-cyan);"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                Central de Drivers e Componentes
+              </h1>
+              <p class="view-desc">Mantenha os componentes críticos do seu computador atualizados diretamente dos servidores oficiais das fabricantes.</p>
+            </div>
+            <div class="view-header-actions">
+              <button id="btn-refresh-drivers" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Reescanear Dispositivos
+              </button>
+            </div>
+          </div>
+
+          <!-- Grid de Drivers Detectados -->
+          <div id="drivers-list-container" class="cards-list">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <span>Detectando adaptadores de Vídeo, Chipset, Rede e USB...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: CENTRAL DE APLICATIVOS ================= -->
+        <section id="view-apps" class="view-panel">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 6px; color: var(--accent-cyan);"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                Central de Aplicativos &amp; Dev Tools
+              </h1>
+              <p class="view-desc">Instale com 1-clique ou desinstale softwares essenciais (Brave, Chrome, WinRAR, VS Code, Git, Docker, Discord, etc.).</p>
+            </div>
+            <div class="view-header-actions">
+              <button id="btn-refresh-apps" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Reescanear Apps
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtros de Aplicativos -->
+          <div class="filter-bar">
+            <button class="filter-pill active" data-app-filter="all">Todos (<span id="count-apps-all">0</span>)</button>
+            <button class="filter-pill" data-app-filter="Navegadores">Navegadores</button>
+            <button class="filter-pill" data-app-filter="Desenvolvimento">Desenvolvimento / Dev</button>
+            <button class="filter-pill" data-app-filter="Utilidades">Utilidades</button>
+            <button class="filter-pill" data-app-filter="Gamer & Chat">Gamer &amp; Chat</button>
+            <button class="filter-pill" data-app-filter="installed">Instalados (<span id="count-apps-installed">0</span>)</button>
+          </div>
+
+          <!-- Grid de Aplicativos -->
+          <div id="apps-list-container" class="cards-list">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <span>Verificando softwares instalados no Windows...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: OTIMIZADOR ================= -->
+        <section id="view-optimizer" class="view-panel">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 6px; color: var(--accent-cyan);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Otimizador de Desempenho &amp; Limpeza
+              </h1>
+              <p class="view-desc">Acelere o carregamento de jogos, libere memória cache acumulada e previna o uso de 100% de disco em SSDs.</p>
+            </div>
+          </div>
+
+          <div class="tools-grid">
+            <!-- TRIM SSD -->
+            <div class="tool-card">
+              <div class="tool-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="tool-content">
+                <h3 class="tool-name">Comando TRIM para SSD (NVMe / SATA)</h3>
+                <p class="tool-desc">Envia ordens de ReTrim aos blocos de memória flash do SSD, restaurando a velocidade nativa de gravação e evitando travamentos.</p>
+                <button id="btn-run-trim" class="btn btn-primary btn-sm">Executar TRIM Agora</button>
+              </div>
+            </div>
+
+            <!-- Limpar RAM -->
+            <div class="tool-card">
+              <div class="tool-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-emerald);"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              </div>
+              <div class="tool-content">
+                <h3 class="tool-name">Liberação Imediata de Memória RAM</h3>
+                <p class="tool-desc">Chama a API Win32 EmptyWorkingSet para esvaziar páginas de memória inativas em cache mantidas por serviços de segundo plano.</p>
+                <button id="btn-clean-ram" class="btn btn-primary btn-sm">Purgar Memória RAM</button>
+              </div>
+            </div>
+
+            <!-- Limpar Disco e Caches -->
+            <div class="tool-card">
+              <div class="tool-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-amber);"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              </div>
+              <div class="tool-content">
+                <h3 class="tool-name">Limpeza de Temporários &amp; Caches em Discos</h3>
+                <p class="tool-desc">Limpa arquivos temporários (%TEMP%, Windows\Temp), caches de atualização (Delivery Optimization / SoftwareDistribution), relatórios de erro, lixeiras de todos os discos e shader caches de GPUs (DirectX, NVIDIA e AMD).</p>
+                <button id="btn-clean-disk" class="btn btn-primary btn-sm">Limpar Caches &amp; Temporários</button>
+              </div>
+            </div>
+
+            <!-- Flush DNS -->
+            <div class="tool-card">
+              <div class="tool-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+              </div>
+              <div class="tool-content">
+                <h3 class="tool-name">Limpeza do Cache de DNS (Flush DNS)</h3>
+                <p class="tool-desc">Esvazia a tabela de resolução de nomes do Windows. Resolve falhas de conexão com servidores de jogos, Steam e Discord.</p>
+                <button id="btn-flush-dns" class="btn btn-primary btn-sm">Limpar Cache DNS</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: MODO GAME & DEFENDER ================= -->
+        <section id="view-gamemode" class="view-panel">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 6px; color: var(--accent-purple);"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="6"/></svg>
+                Modo Performance para Jogos &amp; Windows Defender
+              </h1>
+              <p class="view-desc">Maximize o desempenho do seu PC para jogos e gerencie a proteção do Windows Defender com segurança.</p>
+            </div>
+          </div>
+
+          <!-- ======= GAME MODE CARD ======= -->
+          <div class="gm-panel-grid">
+
+            <!-- CARD: MODO GAME -->
+            <div class="gm-big-card" id="gm-card-gamemode">
+              <div class="gm-card-header">
+                <div class="gm-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-purple);"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="6"/></svg>
+                </div>
+                <div class="gm-card-title-block">
+                  <h2 class="gm-card-title">Modo Performance para Jogos</h2>
+                  <p class="gm-card-desc">Aplica um conjunto de otimizações profundas de sistema para maximizar FPS e reduzir latência.</p>
+                </div>
+                <!-- Toggle Switch -->
+                <label class="toggle-switch" title="Ativar/Desativar Modo Game">
+                  <input type="checkbox" id="toggle-gamemode">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="gm-status-row">
+                <span class="status-dot dot-missing" id="gm-status-dot-game"></span>
+                <span id="gm-status-text-game" class="gm-status-label">Verificando...</span>
+                <span id="gm-plan-name" class="gm-plan-badge">Carregando plano de energia...</span>
+              </div>
+
+              <div class="gm-tweaks-list">
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Plano de Energia: Ultimate Performance</div>
+                    <div class="gm-tweak-desc">Ativa o plano de energia máxima — CPU e GPU nunca entram em modo de economia durante jogos.</div>
+                  </div>
+                </div>
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-emerald);"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Aceleração do Mouse Desativada (PointerPrecision OFF)</div>
+                    <div class="gm-tweak-desc">Essencial para jogos FPS (Valorant, CS2, Apex). Movimentos do mouse ficam 1:1 com a mira.</div>
+                  </div>
+                </div>
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Prioridade de CPU para Jogos (Win32PrioritySeparation)</div>
+                    <div class="gm-tweak-desc">Aumenta o quantum de CPU para aplicações em primeiro plano, reduzindo micro-stutters.</div>
+                  </div>
+                </div>
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-rose);"><circle cx="12" cy="12" r="10"/><path d="m22 12-4 0"/><path d="m6 12-4 0"/><path d="m12 6-0-4"/><path d="m12 22-0-4"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">MMCSS: GPU e CPU Priority = High (Games)</div>
+                    <div class="gm-tweak-desc">Multimedia Class Scheduler Service prioriza os processos de jogos sobre serviços de fundo.</div>
+                  </div>
+                </div>
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-amber);"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5"/><path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Notificações e Xbox Game Bar Desativados</div>
+                    <div class="gm-tweak-desc">Elimina pop-ups e sobreposições que podem causar quedas de FPS e distrações.</div>
+                  </div>
+                </div>
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-purple);"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Modo Jogo do Windows (AutoGameMode)</div>
+                    <div class="gm-tweak-desc">O Windows redistribui recursos automaticamente para o jogo em foco.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Log de etapas -->
+              <div id="gm-game-steps" class="gm-steps-log" style="display:none"></div>
+            </div>
+
+            <!-- CARD: WINDOWS DEFENDER -->
+            <div class="gm-big-card gm-card-defender" id="gm-card-defender">
+              <div class="gm-card-header">
+                <div class="gm-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-emerald);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="gm-card-title-block">
+                  <h2 class="gm-card-title">Windows Defender</h2>
+                  <p class="gm-card-desc">Controle a proteção em tempo real. Desative temporariamente para jogos que conflitam com o antivírus.</p>
+                </div>
+                <!-- Toggle Switch -->
+                <label class="toggle-switch" title="Ativar/Desativar Defender">
+                  <input type="checkbox" id="toggle-defender" checked>
+                  <span class="toggle-slider toggle-slider-danger"></span>
+                </label>
+              </div>
+
+              <div class="gm-status-row">
+                <span class="status-dot dot-installed" id="gm-status-dot-defender"></span>
+                <span id="gm-status-text-defender" class="gm-status-label">Verificando...</span>
+              </div>
+
+              <!-- Alerta de Segurança -->
+              <div class="gm-warning-box" id="gm-defender-warning" style="display:none">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <span>Atenção: O Windows Defender está <strong>DESATIVADO</strong>. Seu computador está sem proteção em tempo real. Reative após jogar!</span>
+              </div>
+
+              <div class="gm-tweaks-list">
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-emerald);"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Quando ATIVAR: Uso normal do computador</div>
+                    <div class="gm-tweak-desc">Mantido ativo para proteção contra malware, ransomware e trojans.</div>
+                  </div>
+                </div>
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-amber);"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Quando DESATIVAR: Apenas durante sessões de jogo</div>
+                    <div class="gm-tweak-desc">Pode eliminar falsos positivos em anti-cheats (Vanguard, EAC, BattlEye) e reduzir stutters causados por scans em tempo real.</div>
+                  </div>
+                </div>
+                <div class="gm-tweak">
+                  <span class="gm-tweak-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                  </span>
+                  <div>
+                    <div class="gm-tweak-name">Reativação Automática</div>
+                    <div class="gm-tweak-desc">O Windows 11/10 pode reativar o Defender automaticamente. Use este painel para confirmar o status.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================= VIEW: ANTI-MINER ================= -->
+        <section id="view-scanner" class="view-panel">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 6px; color: var(--accent-cyan);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Auditoria de Segurança &amp; Anti-Miner
+              </h1>
+              <p class="view-desc">Identifica trojans de mineração de criptomoeda que utilizam sua placa de vídeo ou processador em segundo plano, tarefas ocultas e reativa o Defender.</p>
+            </div>
+            <div class="view-header-actions">
+              <button id="btn-start-scan" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Iniciar Varredura Profunda
+              </button>
+            </div>
+          </div>
+
+          <!-- Status da Varredura -->
+          <div class="scan-status-container">
+            <div class="scan-status-card" id="scan-status-card">
+              <div class="scan-status-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="scan-status-details">
+                <h3 id="scan-status-title">Sistema Não Verificado Nesta Sessão</h3>
+                <p id="scan-status-subtitle">Clique no botão acima para iniciar a auditoria completa.</p>
+              </div>
+              <button id="btn-fix-threats" class="btn btn-danger" style="display:none">Neutralizar Ameaças Encontradas</button>
+            </div>
+          </div>
+
+          <!-- Tabela de Ameaças (se houver) -->
+          <div id="threats-results-container" style="display:none; margin-top: 16px;">
+            <h3 class="subsection-title">Ameaças Detectadas:</h3>
+            <div id="threats-list" class="threats-list"></div>
+          </div>
+
+          <!-- Console de Logs da Varredura -->
+          <div class="terminal-box" style="margin-top: 20px;">
+            <div class="terminal-header">
+              <span class="terminal-title">REGISTRO DE VARREDURA EM TEMPO REAL</span>
+              <button class="btn-clear-log" id="btn-clear-scan-log">Limpar</button>
+            </div>
+            <div class="terminal-body" id="scan-log-output">
+              <div class="log-line text-muted">> Pronto para auditoria de segurança.</div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Modal / Drawer de Download e Instalação Ativa -->
+    <div id="install-modal" class="modal-overlay" style="display:none">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modal-title" class="modal-title">Instalando Componente...</h3>
+          <button id="modal-close-btn" class="btn-icon">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="modal-desc" class="modal-desc">Baixando arquivo do repositório oficial...</p>
+          <div class="modal-progress-container">
+            <div id="modal-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+          </div>
+          <div class="modal-progress-details">
+            <span id="modal-progress-bytes">0 MB / 0 MB</span>
+            <span id="modal-progress-percent">0%</span>
+          </div>
+          <div class="terminal-box modal-terminal">
+            <div class="terminal-header">LOG DE INSTALAÇÃO</div>
+            <div class="terminal-body" id="modal-log-output"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notificações Toast Flutuantes -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
